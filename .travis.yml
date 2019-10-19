@@ -2,7 +2,7 @@
 
 language: R
 env:
-  - PKG_TARBALL=RTest_1.2.4.tar.gz
+  - PKG_TARBALL=rayshaderanmiate_1.0.0.tar.gz
 sudo: required
 
 cache:
@@ -10,8 +10,8 @@ cache:
  - apt: true
 pandoc_version: 1.19.2.1
 r_github_packages:
-  - r-lib/covr
   - r-lib/pkgdown
+  - tylermorganwall/rayshader
 
 addons:
   apt:
@@ -43,10 +43,9 @@ matrix:
   - r: release
     script:
       - R CMD build . --compact-vignettes=gs+qpdf
-      - xvfb-run R CMD check *tar.gz --as-cran
+      - xvfb-run R CMD check *tar.gz
     after_success:
       - tar -C .. -xf $PKG_TARBALL
-      - xvfb-run Rscript -e 'covr::codecov(type=c("tests", "vignettes", "examples"))'
       - rm -rf RTest.Rcheck
       - Rscript -e 'pkgdown::build_site()'
     deploy:
@@ -63,23 +62,3 @@ matrix:
         local-dir: docs
         on:
           branch: master
-  - r: devel
-    script:
-      - R CMD build . --compact-vignettes=gs+qpdf
-      - xvfb-run R CMD check *tar.gz --as-cran
-  - r: release
-    os: osx
-    osx_image: xcode8
-    before_install:
-      - brew update
-      - brew cask reinstall xquartz
-      - brew install tcl-tk
-      - brew link --overwrite --force tcl-tk; brew unlink tcl-tk
-      - sudo tlmgr install framed titling
-    # FROM https://github.com/travis-ci/travis-ci/issues/7313
-    before_script:
-      - "export DISPLAY=:99.0"
-      - if [ "${TRAVIS_OS_NAME}" = "osx" ]; then ( sudo Xvfb :99 -ac -screen 0 1024x768x8; echo ok ) & fi
-    script:
-      - R CMD build . --compact-vignettes=gs+qpdf
-      - R CMD check *tar.gz --as-cran
