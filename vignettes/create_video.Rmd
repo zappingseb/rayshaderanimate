@@ -1,0 +1,58 @@
+---
+title: Make a video from a GPX file
+output:
+  pdf_document
+author: "[Sebastian Wolf](mailto:sebastian@mail-wolf.de)"
+date: "18 Oct 2019"
+vignette: >
+  %\VignetteIndexEntry{rayshaderanimate}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+# About
+```{r, eval = TRUE, echo = FALSE}
+gpx_file_loc <- system.file("Alpe_d_Huez.gpx", package = "rayshaderanimation")
+```
+
+## Get boundaries from GPX
+
+```{r, eval = TRUE, echo = FALSE}
+gpx_table <- get_table_from_gpx(gpx_file_loc) %>%
+  get_enriched_gpx_table()
+
+bbox <- get_bbox_from_gpx_table(gpx_table) 
+bbox_arcgis <- get_table_from_gpx(gpx_file_loc) %>% get_bbox_from_gpx_table(arcgis = TRUE)
+```
+
+# test map piece
+
+```{r, eval = TRUE, echo = TRUE}
+bbox_map(bbox)
+```
+
+## elevation data for rayshader
+```{r, eval = TRUE, echo = TRUE}
+el_mat <- bbox %>% get_elevdata_from_bbox()
+elmat_rayshade <- el_mat %>% unlabel_elevdata()
+elmat_long <- get_elevdata_long(el_mat)
+```
+
+# Plot 2D with map overlay
+```{r, eval = TRUE, echo = TRUE}
+overlay_img <- get_arcgis_map_image(
+  bbox = bbox_arcgis
+)
+
+plot_2d_elevdata(elevdata_rayshade = elmat_rayshade, overlay_img = overlay_img)
+```
+
+# GGPLOT 3D
+```{r, eval = FALSE, echo = FALSE}
+output_gif <- video_animation(gpx_table = gpx_table, elevdata_long = elmat_long, make_gif = TRUE, number_of_screens = 5,
+                output_file_loc = tempfile())
+
+output_vid <- video_animation(gpx_table = gpx_table, elevdata_long = elmat_long, make_gif = FALSE, number_of_screens = 4,
+                output_file_loc = tempfile(fileext = ".mp4"))
+```
+

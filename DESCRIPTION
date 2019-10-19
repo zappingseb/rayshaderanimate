@@ -1,0 +1,36 @@
+Package: rayshaderanimate
+Version: 1.0.0
+Date: 2019-10-18
+Title: A rayshader baded animation of GPX files
+Authors@R: c(
+    person("Sebastian", "Wolf", , "sebastian@mail-wolf.de", role = c("aut","cre"))
+    )
+Depends: R (>= 3.5.1), testthat (>= 0.12.0), ggplot2(>= 3.1.0)
+Imports:
+  gganimate,
+  ggmap,
+  glue,
+  httr,
+  jsonlite,
+  magick,
+  plotKML,
+  png,
+  raster,
+  reshape2,
+  stringr
+Suggests:
+    knitr,
+    rmarkdown
+Description: This provides a framework for R packages developed for
+  a regulatory environment. It is based on the 'testthat' unit testing system and provides the adapter
+    functionalities for XML-based test case definition as well as for standardized
+    reporting of the test results.
+SystemRequirements: ImageMagick++: ImageMagick-c++-devel (rpm) or
+        libmagick++-dev (deb)
+VignetteBuilder: knitr
+License: GPL (>= 2)
+RoxygenNote: 6.1.1
+NeedsCompilation: no
+Author: Sebastian Wolf [aut, cre]
+Maintainer: Sebastian Wolf <sebastian@mail-wolf.de>
+BugReports: https://github.com/zappingseb/rayshaderanimate/issues
