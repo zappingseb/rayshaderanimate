@@ -112,7 +112,7 @@ All snapshots get rendered into a `gif` by the [magick](https://cran.r-project.o
 into a `mp4` by `ffmpeg`. Therefore `ffmpeg` needs to be installed and inside the `PATH`.
 
 
-```{r, eval = FALSE, echo = FALSE}
+```{r, eval = FALSE, echo = TRUE}
 output_gif <- video_animation(gpx_table = gpx_table, elevdata_long = elmat_long, make_gif = TRUE, number_of_screens = 5,
                 output_file_loc = tempfile())
 
