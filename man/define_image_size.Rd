@@ -18,11 +18,3 @@ list with items "width", "height", and "size" (string of format "<width>,<height
 \description{
 Define image size variables from the given bounding box coordinates.
 }
-\examples{
-bbox <- list(
-  p1 = list(long = -122.522, lat = 37.707),
-  p2 = list(long = -122.354, lat = 37.84)
-)
-image_size <- define_image_size(bbox, 600)
-
-}
