@@ -1,7 +1,6 @@
 /.project
 .Rproj.user
 .RData
-.Rbuildignore
 .Rhistory
 rayshader_test.Rproj
 doc
