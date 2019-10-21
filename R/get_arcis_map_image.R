@@ -1,5 +1,3 @@
-
-
 #' Download a map image from the ArcGIS REST API
 #'
 #' @param bbox bounding box coordinates (list of 2 points with long/lat values)
@@ -8,7 +6,8 @@
 #' @param width image width (pixels)
 #' @param height image height (pixels)
 #' @param sr_bbox Spatial Reference code for bounding box
-#'
+#' @param type MapServer will get a map, else elevation data gets downloaded
+#'  
 #' @details This function uses the ArcGIS REST API, specifically the
 #' "Execute Web Map Task" task. You can find links below to a web UI for this
 #' rest endpoint and API documentation.
@@ -23,9 +22,7 @@
 #'   p1 = list(long = -122.522, lat = 37.707),
 #'   p2 = list(long = -122.354, lat = 37.84)
 #' )
-#' image_size <- define_image_size(bbox, 600)
-#' overlay_file <- get_arcgis_map_image(bbox, width = image_size$width,
-#'                                      height = image_size$height)
+#' overlay_file <- get_arcgis_map_image(bbox)
 #' @import httr 
 #' @importFrom glue glue
 #' @importFrom jsonlite unbox toJSON

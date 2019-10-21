@@ -5,13 +5,13 @@ env:
   - PKG_TARBALL=rayshaderanmiate_1.0.0.tar.gz
 sudo: required
 
-cache:
- - packages
- - apt: true
 pandoc_version: 1.19.2.1
 r_github_packages:
   - r-lib/pkgdown
   - tylermorganwall/rayshader
+cache:
+ - packages
+ - apt: true
 
 addons:
   apt:
@@ -19,6 +19,7 @@ addons:
     sources:
       - sourceline: 'ppa:opencpu/imagemagick'
       - sourceline: 'ppa:ubuntugis/ppa'
+      - sourceline: 'ppa:marutter/rrutter'
     packages:
       - libxml2-dev
       - libmagick++-dev
@@ -29,6 +30,7 @@ addons:
       - libleptonica-dev
       - tesseract-ocr-eng
       - r-cran-rgdal
+      - r-cran-rgl
       - libfftw3-dev
       - libxxf86vm-dev
       - x11proto-xf86vidmode-dev

@@ -5,18 +5,21 @@ Title: A rayshader baded animation of GPX files
 Authors@R: c(
     person("Sebastian", "Wolf", , "sebastian@mail-wolf.de", role = c("aut","cre"))
     )
-Depends: R (>= 3.5.1), testthat (>= 0.12.0), ggplot2(>= 3.1.0)
+Depends: R (>= 3.5.0), rayshader (>= 0.12.0), ggplot2(>= 3.1.0)
 Imports:
   gganimate,
   ggmap,
   glue,
+  grDevices,  
   httr,
   jsonlite,
   magick,
+  magrittr,
   plotKML,
   png,
   raster,
   reshape2,
+  rlang,
   stringr
 Suggests:
     knitr,

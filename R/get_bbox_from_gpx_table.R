@@ -1,8 +1,8 @@
 #' Get bbox format from gpx file table
 #' 
-#' @param gpx_table data.frame generated with \link{gpx_file_loc}
+#' @param gpx_table data.frame generated with \link{get_table_from_gpx}
 #' @param arcgis (\code{logical}) Whether a format to download
-#'   data from arcgis by \link{get_arcis_map} shall be provided
+#'   data from arcgis by \link{get_arcgis_map_image} shall be provided
 #'   
 #' @return list of coordinates box
 #' @export

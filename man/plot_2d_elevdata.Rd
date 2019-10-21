@@ -11,7 +11,7 @@ plot_2d_elevdata(elevdata_rayshade, overlay_img = NULL)
 by \code{unlabel_elevdata}}
 
 \item{overlay_img}{(\code{character}) Link to an image to put on-top
-of the map. Best created with \link{get_arcis_map}}
+of the map. Best created with \link{get_arcgis_map_image}}
 }
 \description{
 Plot a 2D raster of the bbox

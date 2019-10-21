@@ -55,7 +55,7 @@ video_animation <- function(gpx_table = NULL, elevdata_long = NULL, number_of_sc
     my_plot <- ggplot() +
       geom_tile(
         data = elevdata_long,
-        aes(as.numeric(as.character(variable)), deg_elmat_lat, fill = value),
+        aes_string("as.numeric(as.character(variable))", "deg_elmat_lat", fill = "value"),
         alpha = 0.75) +
       scale_x_continuous(paste0("Longitude | ", gpx_table$time[vid_indx]), expand = c(0,0)) +
       scale_y_continuous("Latitude", expand = c(0,0)) +
@@ -63,7 +63,7 @@ video_animation <- function(gpx_table = NULL, elevdata_long = NULL, number_of_sc
       coord_fixed() +
       geom_path(
         data = gpx_table[1:vid_indx, ],
-        aes(x = lon, y = lat, color = -rel_speed), shape = 15, size = 1, stroke = 0) +
+        aes_string(x = "lon", y = "lat", color = "-rel_speed"), shape = 15, size = 1, stroke = 0) +
       scale_color_viridis_c(option = "A") +
       guides(colour=FALSE)
     

@@ -4,3 +4,5 @@
 .Rbuildignore
 .Rhistory
 rayshader_test.Rproj
+doc
+Meta

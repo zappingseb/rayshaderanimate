@@ -3,7 +3,7 @@
 #' @param elevdata_rayshade (\code{matrix}) with elevation data but unlabeled
 #'  by \code{unlabel_elevdata}
 #' @param overlay_img (\code{character}) Link to an image to put on-top
-#'   of the map. Best created with \link{get_arcis_map}
+#'   of the map. Best created with \link{get_arcgis_map_image}
 #' @import rayshader
 #' @importFrom raster raster extend extract
 #' @importFrom magrittr %>%

@@ -7,12 +7,15 @@
 #' @export
 #' @import ggplot2
 #' @importFrom gganimate transition_reveal
+#' @importFrom grDevices terrain.colors
+#' @importFrom rlang .data
 plot_2d_animation <- function(gpx_table, elevdata_long) {
+  elevdata_long$variable <- as.numeric(as.character(elevdata_long$variable))
   # ------ animate line -> 2D ---------
   ggplot() +
     geom_tile(
       data = elevdata_long,
-      aes(as.numeric(as.character(variable)), deg_elmat_lat, fill = value),
+      aes_string("variable", "deg_elmat_lat", fill = "value"),
       alpha = 0.45) +
     scale_x_continuous("X",expand = c(0,0)) +
     scale_y_continuous("Y",expand = c(0,0)) +
@@ -20,11 +23,11 @@ plot_2d_animation <- function(gpx_table, elevdata_long) {
     coord_fixed() +
     geom_point(
       data = gpx_table,
-      aes(x = lon, y = lat, color = -rel_speed), shape = 15, size = 1, stroke = 0) +
+      aes_string(x = "lon", y = "lat", color = "-rel_speed"), shape = 15, size = 1, stroke = 0) +
     geom_path(
       data = gpx_table,
-      aes(x = lon, y = lat, color = -rel_speed), shape = 15, size = 1, stroke = 0) +
-    gganimate::transition_reveal(time_right) +
+      aes_string(x = "lon", y = "lat", color = "-rel_speed"), shape = 15, size = 1, stroke = 0) +
+    gganimate::transition_reveal(.data$time_right) +
     scale_color_viridis_c(option = "A") +
     guides(colour=FALSE)
   

@@ -4,7 +4,7 @@
 #' @param every_x_value (\code{numeric}) Just take every xth value to make
 #' 
 #' @return the gpx data with true time and the relative speed between points
-#' 
+#' @export
 #' @importFrom stringr str_replace
 #' @importFrom magrittr %>%
 get_enriched_gpx_table <- function(gpx_table, every_x_value = 5) {
