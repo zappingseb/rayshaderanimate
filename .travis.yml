@@ -39,6 +39,9 @@ addons:
       - libgs-dev
       - qpdf
       - ghostscript
+      - libgdal1-dev
+      - libproj-dev
+      - libgeos-dev
 
 matrix:
   include:

@@ -59,7 +59,7 @@ get_elevdata_from_bbox <- function(bbox, type = c("SRTM", "EUDEM"), file = NULL)
   return(raster::crop(raster_data, raster::extent(bbox)))
 }
 
-#' @import rgdal
+#' @import sp
 #' @importFrom raster raster crop
 .get_raw_elevdata_from_bbox_and_file <- function(bbox, file) {
   

@@ -10,7 +10,6 @@ getImg <- function(txt) {
 }
 #' @importFrom grDevices as.raster col2rgb rgb
 #' @importFrom graphics image
-#' @import rgdal
 #' @import sp
 eudem_image_create <- function(bbox_arcgis, plot2d = TRUE, plot3d = FALSE) {
   legend <- jsonlite::read_json(
