@@ -11,10 +11,7 @@
 #' @export
 plot_2d_elevdata <- function(elevdata_rayshade, overlay_img = NULL) {
   
-  my_raster <- raster::raster(elevdata_rayshade)
-  my_raster_extended <- raster::extend(my_raster, 1)
-  matrix_extended <- matrix(raster::extract(my_raster_extended, raster::extent(my_raster_extended), buffer = 1000),
-                            nrow = ncol(my_raster_extended), ncol = nrow(my_raster_extended))
+  matrix_extended <- elevdata_rayshade
   
   zscale <- 50
   raymat <- ray_shade(matrix_extended, zscale = zscale, lambert = TRUE)

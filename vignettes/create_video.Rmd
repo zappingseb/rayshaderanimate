@@ -71,6 +71,9 @@ easily be used in standard [rayshader](https://github.com/tylermorganwall/raysha
 
 ```{r, eval = FALSE, echo = TRUE}
 el_mat <- bbox %>% get_elevdata_from_bbox()
+
+# Use data from EUDEM project available at: https://land.copernicus.eu/imagery-in-situ/eu-dem/eu-dem-v1.1
+el_mat <- get_elevdata_from_bbox(bbox = bbox, type ="EUDEM", file = "eu_dem_v11_E40N20/eu_dem_v11_E40N20.TIF")
 ```
 
 ```{r, eval = TRUE, echo = TRUE}
@@ -89,6 +92,7 @@ overlay_img <- get_arcgis_map_image(
   bbox = bbox_arcgis
 )
 
+# in case of EUDEM data you might need to transpose the elmat_rayshade
 plot_2d_elevdata(elevdata_rayshade = elmat_rayshade, overlay_img = overlay_img)
 ```
 
@@ -114,11 +118,11 @@ into a `mp4` by `ffmpeg`. Therefore `ffmpeg` needs to be installed and inside th
 
 ```{r, eval = FALSE, echo = TRUE}
 output_gif <- video_animation(gpx_table = gpx_table, elevdata_long = elmat_long, make_gif = TRUE, number_of_screens = 5,
-                output_file_loc = tempfile())
+                output_file_loc = tempfile(fileext = ".gif"))
 
 Sys.setenv("PATH" = paste0(Sys.getenv("PATH"), ";", "<Where is ffmpeg>"))
 
-output_vid <- video_animation(gpx_table = gpx_table, elevdata_long = elmat_long, make_gif = FALSE, number_of_screens = 4,
+output_vid <- video_animation(gpx_table = gpx_table, elevdata_long = elmat_long, make_gif = FALSE, number_of_screens = 6,
                 output_file_loc = tempfile(fileext = ".mp4"))
 ```
 

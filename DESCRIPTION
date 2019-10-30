@@ -19,7 +19,9 @@ Imports:
   png,
   raster,
   reshape2,
+  rgdal,
   rlang,
+  sp,
   stringr
 Suggests:
     knitr,
