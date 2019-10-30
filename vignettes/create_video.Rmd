@@ -84,16 +84,12 @@ elmat_long <- get_elevdata_long(el_mat)
 
 # Plot 2D with map overlay
 
-To double check the data is the right elevation data, it will be plotted with a map overlay. You should
-see the shades of mountains where you would expect them on the map and flat areas around the lake.
+To double check the data is the right elevation data, it will be plotted. You should
+see the shades of mountains where you would expect them.
 
 ```{r, eval = TRUE, echo = TRUE}
-overlay_img <- get_arcgis_map_image(
-  bbox = bbox_arcgis
-)
-
 # in case of EUDEM data you might need to transpose the elmat_rayshade
-plot_2d_elevdata(elevdata_rayshade = elmat_rayshade, overlay_img = overlay_img)
+plot_2d_elevdata(elevdata_rayshade = elmat_rayshade)
 ```
 
 # Generate 3D video
