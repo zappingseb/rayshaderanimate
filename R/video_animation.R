@@ -34,9 +34,21 @@ video_animation <- function(gpx_table = NULL, elevdata_long = NULL, number_of_sc
   video_indeces <- get_video_indeces(time_data = gpx_table$time_right, number_of_screens = number_of_screens)
   
   if (number_of_screens > 50) {
-    warning("theta and zoom parameters will be ignored")
-    theta_angles <- rev(30 - 50 * 1/(1 + exp(seq(-5, 6, length.out = length(video_indeces)))))
-    zoom_scale <- 0.5 + 0.5 * 1/(1 + exp(seq(-5, 5, length.out = length(video_indeces))))
+    if (length(theta) != 2) {
+      
+      warning("theta parameters will be ignored")
+      theta_angles <- rev(30 - 50 * 1/(1 + exp(seq(-5, 6, length.out = length(video_indeces)))))
+    }else {
+      theta_angles <- rev(theta[1] - theta[2] * 1/(1 + exp(seq(-3, 3, length.out = length(video_indeces)))))
+    }
+    
+    if (length(zoom) != 2) {
+      warning("zoom parameters will be ignored")
+      zoom_scale <- 0.5 + 0.5 * 1/(1 + exp(seq(-5, 5, length.out = length(video_indeces))))
+    } else {
+      zoom_scale <- zoom[1] + zoom[2] * 1/(1 + exp(seq(-5, 5, length.out = length(video_indeces))))
+      
+    }
   } else{
     theta_angles <- rep(theta, length(video_indeces))
     zoom_scale <- rep(zoom, length(video_indeces))
@@ -94,7 +106,8 @@ video_animation <- function(gpx_table = NULL, elevdata_long = NULL, number_of_sc
     all_paths <- tempfile(fileext = ".txt")
     
     writeLines(con = all_paths,
-               paste0("file '",tempdir(), "\\video", 1:length(video_indeces), ".png'")
+               paste0("file '",tempdir(), "\\video", c(1:length(video_indeces),rep(length(video_indeces), 24)), ".png'")
+               
     )
     
     outputfile <- tempfile(fileext = ".mp4")

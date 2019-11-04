@@ -48,7 +48,7 @@ eudem_image_create <- function(bbox_arcgis, plot2d = TRUE, plot3d = FALSE) {
   
   legend_elevation <- seq(legend_max, legend_min, by = - (legend_max - legend_min) / (nrow(legend_matrix)-1))
   
-  img_elev <- get_arcgis_map_image(type = "elev", bbox = bbox_arcgis, width = 522, height = 800)
+    img_elev <- get_arcgis_map_image(type = "elev", bbox = bbox_arcgi, width = 522, height = 800)
   image_elev <- png::readPNG(img_elev)
   
   rgb_image <- image_elev[1, 1, c(1:3)]
@@ -77,13 +77,14 @@ eudem_image_create <- function(bbox_arcgis, plot2d = TRUE, plot3d = FALSE) {
   
   if (plot3d) {
     
+    # elevation_matrix <- elevation_matrix[, ncol(elevation_matrix):1]
+    
     # Plotting the matrix as 3d
     elevation_matrix %>%
       sphere_shade(texture = "desert") %>%
       add_water(detect_water(elevation_matrix), color = "desert") %>%
       add_shadow(ray_shade(elevation_matrix, zscale = 3, maxsearch = 300), 0.5) %>%
-      plot_3d(elevation_matrix, zscale = 10, fov = 0, theta = 135, zoom = 0.75, phi = 45, windowsize = c(1000, 800))
-    
+      plot_3d(elevation_matrix, zscale = 15, fov = 0, theta = 135, zoom = 0.75, phi = 45, windowsize = c(1000, 800))
   }
   
 }

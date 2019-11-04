@@ -28,9 +28,7 @@ get_elevdata_from_bbox <- function(bbox, type = c("SRTM", "EUDEM"), file = NULL)
   
   elevation_matrix <- .get_elmatdata_matrix_from_raw(data_raw)
   
-  if (type=="EUDEM") {
-    elevation_matrix <- t(elevation_matrix)
-  }
+  elevation_matrix <- t(elevation_matrix)
   
   if (type == "EUDEM") {
     elevation_labels <- .get_elmat_labels_bbox_size(bbox, dim(elevation_matrix))
