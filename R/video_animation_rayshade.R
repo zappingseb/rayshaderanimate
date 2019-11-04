@@ -3,7 +3,7 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
   
   video_indeces <- get_video_indeces(time_data = gpx_table$time_right, number_of_screens = number_of_screens)
   elev_data_old <- elevdata
-  
+  browser()
   elevdata <- elevdata[c((nrow(elevdata) - 1):1, nrow(elevdata)), c((ncol(elevdata) - 1):1, ncol(elevdata))]
   elevdata[nrow(elevdata), ] <- elevdata[nrow(elevdata), c((ncol(elevdata) - 1):1,ncol(elevdata)) ]
   elevdata[, ncol(elevdata)] <- elevdata[c((nrow(elevdata)-1):1,nrow(elevdata)) , ncol(elevdata)]
@@ -73,12 +73,54 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
     }
     
     render_snapshot(filename = file.path(tempdir(), paste0("video_rayshade_two", i, ".png")), clear = FALSE)
+    
+    if ("distance" %in% names(gpx_table)) {
+      gp_before <- ggplot(data = gpx_table, mapping = aes(x = as.numeric(distance)/1000,
+                                                          y = as.numeric(ele))) +
+        geom_area(fill = "#cccccc") +
+        geom_area(
+          mapping = aes(x = ifelse(distance < gpx_tab_filtered[i, "distance"],
+                                   distance/1000, -1)), fill = "#a5e2ec") +
+        theme_bw() + xlim(0, max(gpx_table$distance)/1000) + xlab("Distance [km]")
+    } else {
+      
+      gp_before <- ggplot(data = gpx_table, mapping = aes(x = as.numeric(time_right),
+                                                   y = as.numeric(ele))) +
+        geom_area(fill = "#cccccc") +
+        geom_area(
+          mapping = aes(x = ifelse(as.numeric(time_right) < as.numeric(gpx_tab_filtered[i, "time_right"]),
+                                   as.numeric(time_right), 0)), fill = "#a5e2ec") +
+        theme_bw() + xlim(min(gpx_table$time_right), max(gpx_table$time_right)) +
+        theme(axis.text.x = element_blank, axis.title.x = element_blank())
+    }
+    
+    gp <- gp_before +
+      theme(axis.line.x = element_blank(), axis.line.y = element_blank(),
+            panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+            axis.ticks = element_blank(), panel.border = element_blank()
+      ) + ylab("Elevation [m]") +
+      coord_cartesian(ylim = c(min(as.numeric(gpx_table$ele)), max(as.numeric(gpx_table$ele))))
+    
+    ggsave(file.path(tempdir(), paste0("video_rayshade_two_elevation", i, ".png")), plot = gp, width = 8, height = 2, dpi = 125)
   }
+  
+  for (i in 1:length(video_indeces)) {
+    magick::image_write(
+      image = magick::image_append(
+        c(magick::image_read(file.path(tempdir(), paste0("video_rayshade_two", i, ".png"))),
+          magick::image_read(file.path(tempdir(), paste0("video_rayshade_two_elevation", i, ".png")))
+        ),
+        stack = TRUE
+      ),
+      path = file.path(tempdir(), paste0("video_rayshade_two_combined", i, ".png"))
+    )
+  }
+  
   # ------ make it a movie -------
   all_paths <- tempfile(fileext = ".txt")
   
   writeLines(con = all_paths,
-             paste0("file '",tempdir(), "\\video_rayshade_two", c(1:length(video_indeces), rep(length(video_indeces), 48)), ".png'")
+             paste0("file '",tempdir(), "\\video_rayshade_two_combined", c(1:length(video_indeces), rep(length(video_indeces), 48)), ".png'")
              
   )
   
