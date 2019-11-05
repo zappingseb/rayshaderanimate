@@ -3,7 +3,6 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
   
   video_indeces <- get_video_indeces(time_data = gpx_table$time_right, number_of_screens = number_of_screens)
   elev_data_old <- elevdata
-  browser()
   elevdata <- elevdata[c((nrow(elevdata) - 1):1, nrow(elevdata)), c((ncol(elevdata) - 1):1, ncol(elevdata))]
   elevdata[nrow(elevdata), ] <- elevdata[nrow(elevdata), c((ncol(elevdata) - 1):1,ncol(elevdata)) ]
   elevdata[, ncol(elevdata)] <- elevdata[c((nrow(elevdata)-1):1,nrow(elevdata)) , ncol(elevdata)]
@@ -23,6 +22,7 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
   gpx_tab_filtered$rel_speed_col <- scales::colour_ramp(viridisLite::viridis(10, option = "A", begin = 1, end = 0))(-gpx_tab_filtered$rel_speed / -max(gpx_tab_filtered$rel_speed))
   
   gpx_tab_filtered$label <- rep(NA, nrow(gpx_tab_filtered))
+  gpx_tab_filtered$title <- rep(NA, nrow(gpx_tab_filtered))
   
   place_indeces <- c()
   
@@ -36,6 +36,7 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
       )
       
       gpx_tab_filtered$label[place_indeces[length(place_indeces)]] <- as.character(places$label[row_index])
+      gpx_tab_filtered$title[place_indeces[length(place_indeces)]] <- as.character(places$title[row_index])
     }
     
   }
@@ -46,7 +47,7 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
                        width = image_size$width, height = image_size$height, 
                        sr_bbox = 4326)
   overlay_file_rot <- tempfile(fileext = ".png")
-  magick::image_write(magick::image_flop(magick::image_flip(image_read(path = overlay_file))), overlay_file_rot)
+  magick::image_write(magick::image_flop(magick::image_flip(magick::image_read(path = overlay_file))), overlay_file_rot)
   overlay_img <- png::readPNG(overlay_file_rot)
   
   # Plotting the matrix as 3d
@@ -55,32 +56,42 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
     add_water(detect_water(elevation_matrix), color = "desert") %>%
     add_shadow(ray_shade(elevation_matrix, zscale = 3, maxsearch = 300), 0.5) %>%
     add_overlay(overlay_img, alphalayer = 0.5) %>%
-    plot_3d(elevation_matrix, zscale = 15, fov = 1, theta = 135, zoom = 0.75, phi = 45, windowsize = c(1000, 800))
+    plot_3d(elevation_matrix, zscale = 15, fov = 1, theta = 280, zoom = 1.5, phi = 30, windowsize = c(1200, 800))
   
-  theta_angles <- rev(theta[1] - theta[2] * 1/(1 + exp(seq(-3, 3, length.out = length(video_indeces)))))
+  # animate an infly that moves from outside to the 3d graphic
+  file_names_infly <- video_util_infly(title = "Schliersee - Spitzingsee - Tegernsee - Cycling")
   
   for (i in 1:nrow(gpx_tab_filtered)) {
     
     render_label(elevation_matrix, x = gpx_tab_filtered[i, "lon_idx"], y = gpx_tab_filtered[i, "lat_idx"], z = 100, 
-                 zscale = 15, text = NULL, textsize = 15, linewidth = 6, freetype = FALSE, color = gpx_tab_filtered[i, "rel_speed_col"]) 
-    render_camera(theta = theta_angles[i])
+                 zscale = 15, text = NULL, textsize = 15, linewidth = 6, freetype = FALSE, color = "#0f9ad1"
+                   #gpx_tab_filtered[i, "rel_speed_col"]
+                   ) 
     
     if (!is.na(gpx_tab_filtered[i, "label"])) {
-      render_label(elevation_matrix, x = gpx_tab_filtered[i, "lon_idx"], y = gpx_tab_filtered[i, "lat_idx"], z = 600, 
+      render_label(elevation_matrix, x = gpx_tab_filtered[i, "lon_idx"], y = gpx_tab_filtered[i, "lat_idx"], z = 2200, 
                    zscale = 15, text = gpx_tab_filtered[i, "label"],
-                   textsize = 15, linewidth = 5, freetype = FALSE, color = "black") 
+                   textsize = 1, linewidth = 7, freetype = FALSE, color = "#0f9ad1", family = "mono", antialias = TRUE)
       
     }
     
     render_snapshot(filename = file.path(tempdir(), paste0("video_rayshade_two", i, ".png")), clear = FALSE)
     
+    # Add a GGPLOT of the elevation profile 
     if ("distance" %in% names(gpx_table)) {
       gp_before <- ggplot(data = gpx_table, mapping = aes(x = as.numeric(distance)/1000,
                                                           y = as.numeric(ele))) +
+        # Gray area
         geom_area(fill = "#cccccc") +
+        # Darkened area behind the blue line
         geom_area(
           mapping = aes(x = ifelse(distance < gpx_tab_filtered[i, "distance"],
                                    distance/1000, -1)), fill = "#a5e2ec") +
+        # Dark blue line infront of x
+        geom_area(data = data.frame(
+          x = c(gpx_tab_filtered[i, "distance"]/1000 - 0.2, gpx_tab_filtered[i, "distance"]/1000 + 0.2),
+          y = rep(max(as.numeric(gpx_table$ele)) + 50, 2))
+        , mapping = aes(x=x, y=y), fill = "#0f9ad1") +
         theme_bw() + xlim(0, max(gpx_table$distance)/1000) + xlab("Distance [km]")
     } else {
       
@@ -104,23 +115,45 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
     ggsave(file.path(tempdir(), paste0("video_rayshade_two_elevation", i, ".png")), plot = gp, width = 8, height = 2, dpi = 125)
   }
   
+  video_images_output <- file.path(tempdir(), paste0("video_rayshade_two_combined", 1:length(video_indeces), ".png"))
+  vapply(video_images_output, file.remove, logical(1))
   for (i in 1:length(video_indeces)) {
+    if (is.na(gpx_tab_filtered[i, "label"])){
+      title_image <- video_util_empty_screen(width = 1200, height = 200)
+    } else {
+      title_image <- video_util_title(title = gpx_tab_filtered[i, "title"], width = 1200, height = 200)
+    }
+    
     magick::image_write(
       image = magick::image_append(
-        c(magick::image_read(file.path(tempdir(), paste0("video_rayshade_two", i, ".png"))),
+        c(magick::image_read(title_image),
+          magick::image_read(file.path(tempdir(), paste0("video_rayshade_two", i, ".png"))),
           magick::image_read(file.path(tempdir(), paste0("video_rayshade_two_elevation", i, ".png")))
         ),
         stack = TRUE
       ),
-      path = file.path(tempdir(), paste0("video_rayshade_two_combined", i, ".png"))
+      path = video_images_output[i]
     )
   }
+  
+  img_ids <- c()
+  for (i in 1:length(video_indeces)){
+    if (is.na(gpx_tab_filtered[i, "label"])){
+      img_ids <- c(img_ids, i)
+    } else {
+      img_ids <- c(img_ids, rep(i, 60))
+    }
+  }
+  img_ids <- c(img_ids, rep(length(video_indeces), 72))
   
   # ------ make it a movie -------
   all_paths <- tempfile(fileext = ".txt")
   
   writeLines(con = all_paths,
-             paste0("file '",tempdir(), "\\video_rayshade_two_combined", c(1:length(video_indeces), rep(length(video_indeces), 48)), ".png'")
+             paste0("file '", c(
+               gsub("\\\\","/", file_names_infly),
+               gsub("\\\\","/", video_images_output[img_ids])
+             ),"'")
              
   )
   
