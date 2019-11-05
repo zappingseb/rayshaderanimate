@@ -54,7 +54,7 @@ matrix:
       - rm -rf RTest.Rcheck
       - Rscript -e 'pkgdown::build_site()'
       - mkdir docs/inst
-      - cp -avr inst docs/inst
+      - cp -avr inst docs
     deploy:
       - provider: releases
         api_key: $GITHUB_TOKEN
