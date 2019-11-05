@@ -53,6 +53,8 @@ matrix:
       - tar -C .. -xf $PKG_TARBALL
       - rm -rf RTest.Rcheck
       - Rscript -e 'pkgdown::build_site()'
+      - mkdir docs/inst
+      - cp -avr inst docs/inst
     deploy:
       - provider: releases
         api_key: $GITHUB_TOKEN
