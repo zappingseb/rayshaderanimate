@@ -17,11 +17,14 @@ Imports:
   magrittr,
   plotKML,
   png,
+  RANN,
   raster,
   reshape2,
   rlang,
+  scales,
   sp,
-  stringr
+  stringr,
+  viridisLite
 Suggests:
     knitr,
     rmarkdown

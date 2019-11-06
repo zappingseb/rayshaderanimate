@@ -47,7 +47,7 @@ matrix:
   include:
   - r: release
     script:
-      - R CMD build . --compact-vignettes=gs+qpdf
+      - R CMD build . --compact-vignettes=gs+qpdf --resave-data
       - xvfb-run R CMD check *tar.gz
     after_success:
       - tar -C .. -xf $PKG_TARBALL

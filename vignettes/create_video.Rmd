@@ -47,7 +47,7 @@ gpx_table <- get_table_from_gpx(gpx_file_loc) %>%
   get_enriched_gpx_table()
 
 bbox <- get_bbox_from_gpx_table(gpx_table) 
-bbox_arcgis <- get_table_from_gpx(gpx_file_loc) %>% get_bbox_from_gpx_table(arcgis = TRUE)
+bbox_arcgis <- get_bbox_from_gpx_table(gpx_table, arcgis = TRUE)
 ```
 
 # Paint a map
@@ -113,7 +113,7 @@ into a `mp4` by `ffmpeg`. Therefore `ffmpeg` needs to be installed and inside th
 
 
 ```{r, eval = FALSE, echo = TRUE}
-output_gif <- video_animation(gpx_table = gpx_table, elevdata_long = elmat_long, make_gif = TRUE, number_of_screens = 5,
+output_gif <- video_animation(gpx_table = gpx_table, elevdata_long = elmat_long, make_gif = TRUE, number_of_screens = 4,
                 output_file_loc = tempfile(fileext = ".gif"))
 
 Sys.setenv("PATH" = paste0(Sys.getenv("PATH"), ";", "<Where is ffmpeg>"))
