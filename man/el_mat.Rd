@@ -6,14 +6,14 @@
 \title{Elevation matrix around Alpe d Huez}
 \format{A data frame with 125 rows and 190 variables:}
 \source{
-\url{http://srtm.csi.cgiar.org/srtmdata/}
+\url{https://srtm.csi.cgiar.org/srtmdata/}
 }
 \usage{
 el_mat
 }
 \description{
 data frame containing the elevation data for a sector around
-Alpe d Huez with 30m accuracy. Longitudinal degrees are
+Alpe d Huez with 250 m2 accuracy. Longitudinal degrees are
 stored in the last column, latitutes are stored as column names.
 }
 \keyword{datasets}

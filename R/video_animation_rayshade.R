@@ -1,150 +1,96 @@
-video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 500, theta = c(360, 340),
-                                     output_file_loc = tempfile(fileext = ".mp4"), places = NULL) {
+#' Create a Rayshader animation of a GPX table
+#' 
+#' @param gpx_table \code{data.frame} gpx table created by get_enriched_gpx_table
+#' @param elevdata \code{data.frame} elevation data reveiced by \link{get_elevdata_from_bbox}
+#' @param bbox_arcgis \code{list} Boundary Box to derive boundaries of an area derived by
+#'  \code{get_bbox_from_gpx_table(..., arcgis = TRUE)}
+#' @param number_of_screens \code{numeric} Number of frames the animation should have
+#' @param title \code{character} The introductory title shown in an infly video
+#' 
+#' @param flyin \code{list} parameters of \link{video_util_infly}
+#' @param places \code{data.frame} containing some places where large labels should be
+#'   added during the video. needs to have the columns \code{lon, lat, label, title}
+#' @param  output_file_loc \code{character} Where to store the output mp4 file.
+#' @param width \code{numeric} Width of the screen to render
+#' @param height \code{numeric} height of the 3d window
+#' 
+#' @param overwrite \code{logical} Whether the final video file can be overwritten
+#' 
+#' @export
+#' 
+#' @import rayshader
+#' @importFrom magrittr %>%
+video_animation_rayshade <- function(gpx_table,
+                                     elevdata,
+                                     bbox_arcgis = NULL,
+                                     number_of_screens = 500,
+                                     title = "Cycling Trip",
+                                     places = NULL,
+                                     output_file_loc = tempfile(fileext = ".mp4"),
+                                     width = 1200,
+                                     height = 800,
+                                     flyin = list(
+                                       theta = c(280, 250),
+                                       zoom = c(0.6, 1.5),
+                                       phi = c(58, 33),
+                                       duration = 4
+                                     ),
+                                     overwrite = TRUE
+                                     ) {
+  
+  stopifnot(grepl("ffmpeg",Sys.getenv("PATH")))
   
   video_indeces <- get_video_indeces(time_data = gpx_table$time_right, number_of_screens = number_of_screens)
-  elev_data_old <- elevdata
-  elevdata <- elevdata[c((nrow(elevdata) - 1):1, nrow(elevdata)), c((ncol(elevdata) - 1):1, ncol(elevdata))]
-  elevdata[nrow(elevdata), ] <- elevdata[nrow(elevdata), c((ncol(elevdata) - 1):1,ncol(elevdata)) ]
-  elevdata[, ncol(elevdata)] <- elevdata[c((nrow(elevdata)-1):1,nrow(elevdata)) , ncol(elevdata)]
   
-  colnames(elevdata) <- colnames(elevdata)[c((ncol(elevdata) - 1):1, ncol(elevdata))]
+  elevation_data_list <- get_elevdata_list(elevdata)
   
-  lon_elevdata <- as.numeric(colnames(elevdata)[(ncol(elevdata) - 1):1])
-  lat_elevdata <- as.numeric(elevdata$deg_elmat_lat[1:(nrow(elevdata) -1)])
-
-  gpx_tab_filtered <- gpx_table[video_indeces, ]
+  gpx_tab_filtered <- get_gpx_table_animate(gpx_table,
+                                            video_indeces = video_indeces,
+                                            lon_labels = elevation_data_list$lon,
+                                            lat_labels = elevation_data_list$lat)
   
-  gpx_tab_filtered$lon_idx <- vapply(gpx_tab_filtered$lon, function(x) which.min(abs(x - lon_elevdata)), numeric(1))
-  gpx_tab_filtered$lat_idx <- vapply(gpx_tab_filtered$lat, function(x) which.min(abs(x - lat_elevdata)), numeric(1))
- 
-  elevation_matrix <- elevdata %>% unlabel_elevdata() %>% t
-  
-  gpx_tab_filtered$rel_speed_col <- scales::colour_ramp(viridisLite::viridis(10, option = "A", begin = 1, end = 0))(-gpx_tab_filtered$rel_speed / -max(gpx_tab_filtered$rel_speed))
-  
-  gpx_tab_filtered$label <- rep(NA, nrow(gpx_tab_filtered))
-  gpx_tab_filtered$title <- rep(NA, nrow(gpx_tab_filtered))
-  
-  place_indeces <- c()
   
   if (!is.null(places) && number_of_screens > 50) {
     
-    for (row_index in 1:nrow(places)) {
-      
-      place_indeces <- c(place_indeces, which.min(
-        
-         sqrt((gpx_tab_filtered$lat - places$lat[row_index]) ^ 2 + (gpx_tab_filtered$lon - places$lon[row_index]) ^ 2))
-      )
-      
-      gpx_tab_filtered$label[place_indeces[length(place_indeces)]] <- as.character(places$label[row_index])
-      gpx_tab_filtered$title[place_indeces[length(place_indeces)]] <- as.character(places$title[row_index])
-    }
+    gpx_tab_filtered <- get_gpx_table_with_places(gpx_tab_filtered, places)
     
   }
-  
-  image_size <- define_image_size(bbox_arcgis, major_dim = 600)
-  overlay_file <- tempfile(fileext = ".png")
-  get_arcgis_map_image(bbox_arcgis, map_type = "World_Topo_Map", file = overlay_file,
-                       width = image_size$width, height = image_size$height, 
-                       sr_bbox = 4326)
-  overlay_file_rot <- tempfile(fileext = ".png")
-  magick::image_write(magick::image_flop(magick::image_flip(magick::image_read(path = overlay_file))), overlay_file_rot)
-  overlay_img <- png::readPNG(overlay_file_rot)
-  
+  elevation_matrix <- elevation_data_list$elevation_matrix
   # Plotting the matrix as 3d
-  elevation_matrix %>%
+  elev_elem <- elevation_matrix %>%
     sphere_shade(texture = "desert") %>%
     add_water(detect_water(elevation_matrix), color = "desert") %>%
-    add_shadow(ray_shade(elevation_matrix, zscale = 3, maxsearch = 300), 0.5) %>%
-    add_overlay(overlay_img, alphalayer = 0.5) %>%
-    plot_3d(elevation_matrix, zscale = 15, fov = 1, theta = 280, zoom = 1.5, phi = 30, windowsize = c(1200, 800))
+    add_shadow(ray_shade(elevation_matrix, zscale = 3, maxsearch = 300), 0.5)
   
+  if (!is.null(bbox_arcgis)) {
+      message("Downloading overlay image")
+      overlay_img <- get_image_overlay(bbox_arcgis)
+      elev_elem <- elev_elem %>% add_overlay(overlay_img, alphalayer = 0.5)
+  }
+  
+  elev_elem %>%
+    plot_3d(elevation_matrix, zscale = 15, fov = 1, theta = 280, zoom = 1.5, phi = 60, windowsize = c(width, height))
   # animate an infly that moves from outside to the 3d graphic
-  file_names_infly <- video_util_infly(title = "Schliersee - Spitzingsee - Tegernsee - Cycling")
+  message("Rendering Intro flight")
+  file_names_infly <- video_util_infly(title = title, width = width, height = height/4,
+                                       theta = flyin$theta, zoom = flyin$zoom, phi = flyin$phi, duration = flyin$duration
+                                       )
   
-  for (i in 1:nrow(gpx_tab_filtered)) {
-    
-    render_label(elevation_matrix, x = gpx_tab_filtered[i, "lon_idx"], y = gpx_tab_filtered[i, "lat_idx"], z = 100, 
-                 zscale = 15, text = NULL, textsize = 15, linewidth = 6, freetype = FALSE, color = "#0f9ad1"
-                   #gpx_tab_filtered[i, "rel_speed_col"]
-                   ) 
-    
-    if (!is.na(gpx_tab_filtered[i, "label"])) {
-      render_label(elevation_matrix, x = gpx_tab_filtered[i, "lon_idx"], y = gpx_tab_filtered[i, "lat_idx"], z = 2200, 
-                   zscale = 15, text = gpx_tab_filtered[i, "label"],
-                   textsize = 1, linewidth = 7, freetype = FALSE, color = "#0f9ad1", family = "mono", antialias = TRUE)
-      
-    }
-    
-    render_snapshot(filename = file.path(tempdir(), paste0("video_rayshade_two", i, ".png")), clear = FALSE)
-    
-    # Add a GGPLOT of the elevation profile 
-    if ("distance" %in% names(gpx_table)) {
-      gp_before <- ggplot(data = gpx_table, mapping = aes(x = as.numeric(distance)/1000,
-                                                          y = as.numeric(ele))) +
-        # Gray area
-        geom_area(fill = "#cccccc") +
-        # Darkened area behind the blue line
-        geom_area(
-          mapping = aes(x = ifelse(distance < gpx_tab_filtered[i, "distance"],
-                                   distance/1000, -1)), fill = "#a5e2ec") +
-        # Dark blue line infront of x
-        geom_area(data = data.frame(
-          x = c(gpx_tab_filtered[i, "distance"]/1000 - 0.2, gpx_tab_filtered[i, "distance"]/1000 + 0.2),
-          y = rep(max(as.numeric(gpx_table$ele)) + 50, 2))
-        , mapping = aes(x=x, y=y), fill = "#0f9ad1") +
-        theme_bw() + xlim(0, max(gpx_table$distance)/1000) + xlab("Distance [km]")
-    } else {
-      
-      gp_before <- ggplot(data = gpx_table, mapping = aes(x = as.numeric(time_right),
-                                                   y = as.numeric(ele))) +
-        geom_area(fill = "#cccccc") +
-        geom_area(
-          mapping = aes(x = ifelse(as.numeric(time_right) < as.numeric(gpx_tab_filtered[i, "time_right"]),
-                                   as.numeric(time_right), 0)), fill = "#a5e2ec") +
-        theme_bw() + xlim(min(gpx_table$time_right), max(gpx_table$time_right)) +
-        theme(axis.text.x = element_blank, axis.title.x = element_blank())
-    }
-    
-    gp <- gp_before +
-      theme(axis.line.x = element_blank(), axis.line.y = element_blank(),
-            panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-            axis.ticks = element_blank(), panel.border = element_blank()
-      ) + ylab("Elevation [m]") +
-      coord_cartesian(ylim = c(min(as.numeric(gpx_table$ele)), max(as.numeric(gpx_table$ele))))
-    
-    ggsave(file.path(tempdir(), paste0("video_rayshade_two_elevation", i, ".png")), plot = gp, width = 8, height = 2, dpi = 125)
-  }
+  message("Rendering 3d route")
+  file_names_3d <- video_util_3d_animation(gpx_table = gpx_tab_filtered, elevation_matrix = elevation_matrix)
   
-  video_images_output <- file.path(tempdir(), paste0("video_rayshade_two_combined", 1:length(video_indeces), ".png"))
-  vapply(video_images_output, file.remove, logical(1))
-  for (i in 1:length(video_indeces)) {
-    if (is.na(gpx_tab_filtered[i, "label"])){
-      title_image <- video_util_empty_screen(width = 1200, height = 200)
-    } else {
-      title_image <- video_util_title(title = gpx_tab_filtered[i, "title"], width = 1200, height = 200)
-    }
-    
-    magick::image_write(
-      image = magick::image_append(
-        c(magick::image_read(title_image),
-          magick::image_read(file.path(tempdir(), paste0("video_rayshade_two", i, ".png"))),
-          magick::image_read(file.path(tempdir(), paste0("video_rayshade_two_elevation", i, ".png")))
-        ),
-        stack = TRUE
-      ),
-      path = video_images_output[i]
-    )
-  }
+  message("Rendering 2d elevation profiles")
+  file_names_gg <- video_util_ggplot_elevation(gpx_table = gpx_tab_filtered, dpi = width/8)
   
-  img_ids <- c()
-  for (i in 1:length(video_indeces)){
-    if (is.na(gpx_tab_filtered[i, "label"])){
-      img_ids <- c(img_ids, i)
-    } else {
-      img_ids <- c(img_ids, rep(i, 60))
-    }
-  }
-  img_ids <- c(img_ids, rep(length(video_indeces), 72))
+  message("Merging 3d and 2d images")
+  video_images <- video_util_3d_and_gg(
+    gpx_table = gpx_tab_filtered,
+    file_names_3d = file_names_3d,
+    file_names_gg = file_names_gg,
+    width = width,
+    height = height/4,
+    frames_of_place = 60
+  )
   
   # ------ make it a movie -------
   all_paths <- tempfile(fileext = ".txt")
@@ -152,13 +98,14 @@ video_animation_rayshade <- function(gpx_table, elevdata, number_of_screens = 50
   writeLines(con = all_paths,
              paste0("file '", c(
                gsub("\\\\","/", file_names_infly),
-               gsub("\\\\","/", video_images_output[img_ids])
+               video_images
              ),"'")
              
   )
   
   outputfile <- tempfile(fileext = ".mp4")
   
+  message("Rendering Video")
   system(intern = TRUE,
          paste0("ffmpeg ",
                 ifelse(overwrite, "-y", "-n"),

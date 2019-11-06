@@ -4,3 +4,6 @@
 ^Meta$
 ^\.travis.yml
 ^out\.mp4
+^dev$
+^\_pkgdown.yml
+^readme.txt

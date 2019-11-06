@@ -11,21 +11,22 @@ a cycling trip or a hike. You did it with a GPX tracker. This data shall now be 
 onto a 3d landscape. This is what this package will do for you.
 
 As an example the package contains one of [my](https://github.com/zappingseb) cycling
-trips at the 21 hard serpentines of Alpe d'Huez. You can go through the vignette
-of this package which explains [How to create the video?](https://zappingseb.github.io/rayshaderanimate/articles/create_video.html).
+trips at the 21 hard hairpin bends of Alpe d'Huez. You can go through the vignette
+of this package which explains [How to create the video?](https://zappingseb.github.io/rayshaderanimate/articles/create_video.html) or
+read my [blog article](https://mail-wolf.de/?p=4439) about the package.
 
-**Final video**
+**Final videos**
 
 *as a gif*
 
-![](inst/video.gif)
+![](https://github.com/zappingseb/rayshaderanimate/raw/master/inst/video.gif)
 
 
 *as a mp4*
 
-[![](inst/youtube.png)](https://www.youtube.com/watch?v=NNb50ccJ6jI)
+[![](https://github.com/zappingseb/rayshaderanimate/raw/master/inst/youtube.png)](https://www.youtube.com/watch?v=iEqoR-HpKeU)
 
-
+https://www.youtube.com/watch?v=iEqoR-HpKeU
 
 ## Functionality
 
@@ -49,21 +50,27 @@ Read in a gpx file to a table
 get_table_from_gpx()
 ```
 
-Enrich the table and convert it to a boundary box
+Enrich the table with distance and speed measures. Convert it to a boundary box
 
 ```r
 get_enriched_gpx_table()
 
-get_bbox_from_gpx_table()
+get_bbox_from_gpx_table()s
 ```
 
 ### Elevation data functions
 
-Elevation data can be downloaded from [SRTM](http://srtm.csi.cgiar.org/srtmdata/).
+Elevation data can be downloaded from [SRTM](http://srtm.csi.cgiar.org/srtmdata/) or
+be directly added by an [EUDEM](https://land.copernicus.eu/imagery-in-situ/eu-dem/eu-dem-v1.1?tab=downloada) file.
 
 ```r
-get_elevdata_from_bbox()
-get_elevdata_long()
+el_mat <- get_elevdata_from_bbox()
+
+el_mat_eudem <- get_elevdata_from_bbox(bbox = bbox,
+  type ="EUDEM",
+  file = "eu_dem_v11_E40N20/eu_dem_v11_E40N20.TIF")
+  
+get_elevdata_long(el_mat)
 ```
 
 ### Output plot functions
@@ -83,3 +90,8 @@ plot_2d_elevdata()
 
 To create a video there is just the function [`video_animation()`](https://zappingseb.github.io/rayshaderanimate/reference/video_animation.html) which will do 
 the most important job of this package. Rendering the video.
+
+To create a video on shere shades there is the function [`video_animation_rayshade()`](https://zappingseb.github.io/rayshaderanimate/reference/video_animation_rayshade.html) which will render
+an even nicer story video:
+
+[![](https://github.com/zappingseb/rayshaderanimate/raw/master/inst/gpx_story.png)](https://www.youtube.com/watch?v=iEqoR-HpKeU)

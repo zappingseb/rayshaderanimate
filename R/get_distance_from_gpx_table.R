@@ -6,14 +6,16 @@
 #' @param gpx_table \code{data.frame} created by \link{get_table_from_gpx}
 #' 
 #' @return vector of distances in m
-#' 
+#' @importFrom utils flush.console
 get_distance_from_gpx_table <- function(gpx_table){
   
   stopifnot("lon" %in% names(gpx_table))
   stopifnot("lat" %in% names(gpx_table))
-  
+  message("Calculating distances may take a while.")
   distance_vector <- c(0)
   for (i in 1:(nrow(gpx_table) - 1)) {
+    message(paste0(i, "/", (nrow(gpx_table) - 1)),"\r",appendLF=FALSE)
+    flush.console()
     distance_vector <- c(
       distance_vector,
       distance_vector[i] + calc_distance(points_from = data.frame(lng = gpx_table[i, "lon"], lat =gpx_table[i, "lat"]),

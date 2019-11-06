@@ -29,7 +29,8 @@ get_enriched_gpx_table <- function(gpx_table, every_x_value = 5) {
                                 }) / 
                                   # Devide by time in seconds
                                   diff(as.matrix(gpx_table_plot$time_right)))
-  gpx_table$distance <- get_distance_from_gpx_table(gpx_table)
+  
+  gpx_table_plot$distance <- get_distance_from_gpx_table(gpx_table_plot)
   
   return(gpx_table_plot)
 }

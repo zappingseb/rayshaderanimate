@@ -1,0 +1,45 @@
+template:
+  params:
+    ganalytics: UA-38991867-2
+
+reference:
+  - title: GPX Data
+    contents:
+    - get_table_from_gpx
+    - get_bbox_from_gpx_table
+    - get_enrichted_gpx_table
+  - title: Elevation data
+    contents:
+    - get_elevdata_from_bbox
+    - get_elevdata_list
+    - get_elevdata_long
+    - unlabel_elevdata
+  - title: Plotting
+    contents:
+    - get_arcgis_map_image
+    - define_image_size
+    - plot_2d_elevdata
+    - plot_2d_animation
+    - get_image_overlay
+  - title: Datasets
+    contents:
+    - el_mat
+    - el_mat_eudem
+    - places_alpe_de_huez
+    - elevation_data_Schliersee
+    - places_Schliersee
+  - title: Video
+    contents:
+    - video_animation
+    - video_animation_rayshade
+
+navbar:
+  title: ~
+  type: default
+  left:
+  - text: Functions
+    href: reference/index.html
+  - text: Vignettes
+    menu:
+    - text: Video animation
+      href: articles/create_video.html

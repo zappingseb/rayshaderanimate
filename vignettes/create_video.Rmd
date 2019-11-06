@@ -47,7 +47,7 @@ gpx_table <- get_table_from_gpx(gpx_file_loc) %>%
   get_enriched_gpx_table()
 
 bbox <- get_bbox_from_gpx_table(gpx_table) 
-bbox_arcgis <- get_table_from_gpx(gpx_file_loc) %>% get_bbox_from_gpx_table(arcgis = TRUE)
+bbox_arcgis <- get_bbox_from_gpx_table(gpx_table, arcgis = TRUE)
 ```
 
 # Paint a map

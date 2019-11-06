@@ -48,7 +48,7 @@ eudem_image_create <- function(bbox_arcgis, plot2d = TRUE, plot3d = FALSE) {
   
   legend_elevation <- seq(legend_max, legend_min, by = - (legend_max - legend_min) / (nrow(legend_matrix)-1))
   
-    img_elev <- get_arcgis_map_image(type = "elev", bbox = bbox_arcgi, width = 522, height = 800)
+    img_elev <- get_arcgis_map_image(type = "elev", bbox = bbox_arcgis, width = 522, height = 800)
   image_elev <- png::readPNG(img_elev)
   
   rgb_image <- image_elev[1, 1, c(1:3)]

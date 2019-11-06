@@ -1,3 +1,4 @@
+#' @importFrom grDevices png dev.off
 video_util_empty_screen <- function(width, height){
   infly_heading_file <- tempfile(fileext = ".png")
   
