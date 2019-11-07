@@ -33,7 +33,7 @@ https://www.youtube.com/watch?v=iEqoR-HpKeU
 Getting started:
 
 ```
-devtools::install_github("zappingseb/rayshaderanimation")
+devtools::install_github("zappingseb/rayshaderanimate")
 ```
 
 ### How to create a video?
