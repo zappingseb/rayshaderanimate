@@ -12,6 +12,10 @@
 #' @importFrom magrittr %>%
 get_elevdata_from_bbox <- function(bbox, type = c("SRTM", "EUDEM"), file = NULL) {
   
+  if (is.data.frame(bbox)) {
+    bbox <- as.matrix.data.frame(bbox)
+  }
+  
   if (length(type) > 1) {
     type <- type[1]
   }
