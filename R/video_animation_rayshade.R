@@ -4,6 +4,8 @@
 #' @param elevdata \code{data.frame} elevation data reveiced by \link{get_elevdata_from_bbox}
 #' @param bbox_arcgis \code{list} Boundary Box to derive boundaries of an area derived by
 #'  \code{get_bbox_from_gpx_table(..., arcgis = TRUE)}
+#' @param image_overlay_alpha \code{numeric} Defines transparency of image layer in function
+#'  \code{rayshader::add_overlay()}. Only relevant if code{bbox_arcgis != NULL}. Defaults to 0.9.
 #' @param number_of_screens \code{numeric} Number of frames the animation should have
 #' @param title \code{character} The introductory title shown in an infly video
 #' 
@@ -23,6 +25,7 @@
 video_animation_rayshade <- function(gpx_table,
                                      elevdata,
                                      bbox_arcgis = NULL,
+                                     image_overlay_alpha = .9,
                                      number_of_screens = 500,
                                      title = "Cycling Trip",
                                      places = NULL,
@@ -65,7 +68,7 @@ video_animation_rayshade <- function(gpx_table,
   if (!is.null(bbox_arcgis)) {
       message("Downloading overlay image")
       overlay_img <- get_image_overlay(bbox_arcgis)
-      elev_elem <- elev_elem %>% add_overlay(overlay_img, alphalayer = 0.5)
+      elev_elem <- elev_elem %>% add_overlay(overlay_img, alphalayer = image_overlay_alpha)
   }
   
   elev_elem %>%
