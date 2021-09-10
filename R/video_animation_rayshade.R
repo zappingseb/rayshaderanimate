@@ -3,7 +3,9 @@
 #' @param gpx_table \code{data.frame} gpx table created by get_enriched_gpx_table
 #' @param elevdata \code{data.frame} elevation data reveiced by \link{get_elevdata_from_bbox}
 #' @param bbox_arcgis \code{list} Boundary Box to derive boundaries of an area derived by
-#'  \code{get_bbox_from_gpx_table(..., arcgis = TRUE)}
+#'  \code{get_bbox_from_gpx_table(..., arcgis = TRUE)}, OR an \code{array} of overlay_img
+#'  downloaded by the function \code{get_image_overlay()}. 
+#'  If NULL (default) no overlay is added to the video.
 #' @param image_overlay_alpha \code{numeric} Defines transparency of image layer in function
 #'  \code{rayshader::add_overlay()}. Only relevant if code{bbox_arcgis != NULL}. Defaults to 0.9.
 #' @param number_of_screens \code{numeric} Number of frames the animation should have
@@ -66,8 +68,13 @@ video_animation_rayshade <- function(gpx_table,
     add_shadow(ray_shade(elevation_matrix, zscale = 3, maxsearch = 300), 0.5)
   
   if (!is.null(bbox_arcgis)) {
+    if (class(bbox_arcgis) == "list") {
       message("Downloading overlay image")
       overlay_img <- get_image_overlay(bbox_arcgis)
+      }
+    if (class(bbox_arcgis) == "list") {
+      overlay_img <- bbox_arcgis
+    }
       elev_elem <- elev_elem %>% add_overlay(overlay_img, alphalayer = image_overlay_alpha)
   }
   
@@ -76,7 +83,8 @@ video_animation_rayshade <- function(gpx_table,
   # animate an infly that moves from outside to the 3d graphic
   message("Rendering Intro flight")
   file_names_infly <- video_util_infly(title = title, width = width, height = height/4,
-                                       theta = flyin$theta, zoom = flyin$zoom, phi = flyin$phi, duration = flyin$duration
+                                       theta = flyin$theta, zoom = flyin$zoom, phi = flyin$phi, 
+                                       duration = flyin$duration
                                        )
   
   message("Rendering 3d route")
