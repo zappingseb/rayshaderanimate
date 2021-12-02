@@ -6,8 +6,8 @@
 #' @param theta \code{numeric} Theta angle will move from first value to first value minus second value
 #' @param phi \code{numeric} phi angle will move from first value to first value minus second value
 #' @param zoom \code{numeric} zoom angle will move from second value to first value
-#' 
 #' @param title \code{character} Title of the infly video
+#' @param add_elevation_plot \code{logical} Option to add an elevation graph to the bottom of the vid
 #' @param width \code{numeric} width of the inflight video
 #' @param height \code{numeric} height of the inflight video title
 #' @param duration \code{numeric} duration in seconds
@@ -19,7 +19,10 @@
 video_util_infly <- function(theta = c(280, 250),
                              zoom = c(0.6, 1.5),
                              phi = c(58, 33),
-                             title = "Random Bike Ride", width = 1200, height = 200,
+                             title = NULL,
+                             add_elevation_plot = FALSE,
+                             width = 1200, 
+                             height = 200,
                              duration = 4
                              ) {
   
@@ -37,8 +40,9 @@ video_util_infly <- function(theta = c(280, 250),
     render_camera(theta = theta_angles[i], zoom = zoom_scale[i], phi = phi_angles[i])
     render_snapshot(filename = file_names_infly[i])
   }
-  
-  infly_heading_file <- video_util_title(heading = title, width = width, height = height)
+  if (!is.null(title)) {
+    infly_heading_file <- video_util_title(heading = title, width = width, height = height)
+  }
   
   png_empty <- video_util_empty_screen(width = width, height = width / 4)
   
@@ -49,14 +53,13 @@ video_util_infly <- function(theta = c(280, 250),
   for (i in 1:length(file_names_infly)) {
     message(paste0(i, "/", length(file_names_infly)),"\r",appendLF=FALSE)
     flush.console()
+    image <- magick::image_read(c(
+      if (!is.null(title)) {infly_heading_file},
+      file_names_infly[i],
+      if (add_elevation_plot) {png_empty}
+    ))
     magick::image_write(
-      image = magick::image_append(
-        c(magick::image_read(infly_heading_file),
-          magick::image_read(file_names_infly[i]),
-          magick::image_read(png_empty)
-        ),
-        stack = TRUE
-      ),
+      image = magick::image_append(image = image, stack = TRUE),
       path = output_files[i]
     )
   }
